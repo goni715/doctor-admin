@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    margin: 0;
+    padding: 0;
+}
+.active{
+    @apply bg-white p-2.5 text-black text-black
+}
+
