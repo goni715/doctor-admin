@@ -13,7 +13,7 @@ const Layout = ({children}) => {
                     <Sidebar/>
 
                     {/*Content*/}
-                    <div className="content w-full h-full">
+                    <div className="content md:ml-[300px] w-full h-full">
                         <Header/>
 
                         {/*Content Body*/}
