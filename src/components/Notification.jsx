@@ -1,24 +1,53 @@
 import {Tabs} from "antd";
 import {
     useDeleteAllReadMutation,
-    useGetMyProfileQuery,
+    useGetNotificationQuery,
     useMarkAllReadMutation
 } from "../redux/features/user/userApi.js";
 import {useNavigate} from "react-router-dom";
 import ListLoading from "./Loader/ListLoading.jsx";
+import {useEffect, useState} from "react";
+import {io} from "socket.io-client";
+import {useSelector} from "react-redux";
 
 const Notification = () => {
     const navigate = useNavigate();
-    const {data, isLoading } = useGetMyProfileQuery();
-    const user = data?.data;
+    const {data, isLoading, refetch } = useGetNotificationQuery();
+    const user = useSelector((state)=>state.user.user) || {};
+    const notification = user?.notification || [];
+    const seenNotification = user?.seenNotification || [];
     const [markAllRead, {isSuccess}] = useMarkAllReadMutation();
     const [deleteAllRead, {isError}] = useDeleteAllReadMutation();
-    // const isLoading = true;
+    const [message, setMessage] = useState(""); //message from socket server
+    const socket = io('ws://localhost:5000', {
+            reconnectionDelay: 1000,
+            reconnection: true,
+            reconnectionAttemps: 10,
+            transports: ["websocket"],
+            agent: false,
+            upgrade: false,
+            rejectUnauthorized: false,
+    });
+
+    useEffect(()=> {
+        socket.on('receive-notification', (data) => {
+            setMessage(data)
+        });
+    },[socket]);
+
+
+    useEffect(()=>{
+        if(message){
+            refetch();
+        }
+    },[message, refetch])
+
+
 
 
     // handle read notification
     const handleMarkAllRead = () => {
-        if(user?.notification.length > 0) {
+        if(notification.length > 0) {
             markAllRead();
         }
     }
@@ -27,7 +56,7 @@ const Notification = () => {
 
     // delete notifications
     const handleDeleteAllRead = () => {
-        if(user?.seenNotification.length > 0) {
+        if(seenNotification.length > 0) {
             deleteAllRead();
         }
     }
@@ -46,7 +75,7 @@ const Notification = () => {
                     </div>
                     <div className="flex flex-col gap-6">
                         {
-                            user?.notification.map((item,i)=>{
+                            notification.map((item,i)=>{
                                 return(
                                     <>
                                         <div key={i.toString()} className="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
@@ -75,7 +104,7 @@ const Notification = () => {
                     </div>
                     <div className="flex flex-col gap-6">
                     {
-                        user?.seenNotification.map((item,i)=>{
+                        seenNotification.map((item,i)=>{
                             return(
                                 <>
                                     <div key={i.toString()} className="cursor-pointer bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">

@@ -3,19 +3,37 @@ import {MdOutlineLogout} from "react-icons/md";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {IoMdClose} from "react-icons/io";
 import {GiHamburgerMenu} from "react-icons/gi";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Badge} from "antd";
 import {FaBell} from "react-icons/fa";
 import {SidebarMenu} from "../../Data/data.js";
 import {useGetNotificationQuery} from "../../redux/features/user/userApi.js";
+import {io} from "socket.io-client";
 
 const MobileNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const pathName = location.pathname;
     const [open, setOpen] = useState(false);
-    const {data,isLoading } = useGetNotificationQuery();
+    const {data,refetch } = useGetNotificationQuery();
     const {notification} = data?.data || {};
+
+    const [message, setMessage] = useState(""); //message from socket server
+
+    const socket = io('http://localhost:5000');
+
+    useEffect(()=> {
+        socket.on('receive-notification', (data) => {
+            setMessage(data) //socketId
+        });
+    },[socket]);
+
+
+    useEffect(()=>{
+        if(message){
+            refetch();
+        }
+    },[message, refetch])
 
     //handle open
     const handleOpen = () => {

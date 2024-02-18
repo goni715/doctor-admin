@@ -1,6 +1,7 @@
 import {apiSlice} from "../api/apiSlice.js";
 import {ErrorToast, SuccessToast} from "../../../helper/ValidationHelper.js";
 import {setNotification} from "../../../helper/SessionHelper.js";
+import {SetUser} from "./userSlice.js";
 
 
 export const userApi = apiSlice.injectEndpoints({
@@ -8,24 +9,10 @@ export const userApi = apiSlice.injectEndpoints({
         getUsers: builder.query({
             query: () => `/admin/get-all-user`,
             keepUnusedDataFor: 600,
-            async onQueryStarted(arg, {queryFulfilled, dispatch}){
-                try{
+            async onQueryStarted(arg, {queryFulfilled, dispatch}) {
+                try {
                     const res = await queryFulfilled;
-                }catch(err) {
-                    ErrorToast("Something Went Wrong!");
-                    //do nothing
-                    console.log(err);
-                }
-            },
-        }),
-        getMyProfile: builder.query({
-            query: () => `/user/get-my-profile`,
-            keepUnusedDataFor: 180,
-            providesTags: ["Profile"],
-            async onQueryStarted(arg, {queryFulfilled, dispatch}){
-                try{
-                    const res = await queryFulfilled;
-                }catch(err) {
+                } catch (err) {
                     ErrorToast("Something Went Wrong!");
                     //do nothing
                     console.log(err);
@@ -36,10 +23,11 @@ export const userApi = apiSlice.injectEndpoints({
             query: () => `/user/get-my-profile`,
             keepUnusedDataFor: 600,
             providesTags: ["Notification"],
-            async onQueryStarted(arg, {queryFulfilled, dispatch}){
-                try{
+            async onQueryStarted(arg, {queryFulfilled, dispatch}) {
+                try {
                     const res = await queryFulfilled;
-                }catch(err) {
+                    dispatch(SetUser(res?.data?.data))
+                } catch (err) {
                     ErrorToast("Something Went Wrong!");
                     //do nothing
                     console.log(err);
@@ -52,14 +40,14 @@ export const userApi = apiSlice.injectEndpoints({
                 method: "PUT",
             }),
             invalidatesTags: ["Notification", "Profile"],
-            async onQueryStarted(arg, {queryFulfilled}){
-                try{
+            async onQueryStarted(arg, {queryFulfilled}) {
+                try {
                     const res = await queryFulfilled;
                     setNotification(0);
-                    if(res?.data?.message==="success"){
+                    if (res?.data?.message === "success") {
                         SuccessToast("Mark all Read Success");
                     }
-                }catch(err) {
+                } catch (err) {
                     ErrorToast("Something went wrong!")
                 }
             }
@@ -69,20 +57,21 @@ export const userApi = apiSlice.injectEndpoints({
                 url: "/user/delete-all-read-notification",
                 method: "PUT",
             }),
-            invalidatesTags: ["Notification","Profile"],
-            async onQueryStarted(arg, {queryFulfilled}){
-                try{
+            invalidatesTags: ["Notification", "Profile"],
+            async onQueryStarted(arg, {queryFulfilled}) {
+                try {
                     const res = await queryFulfilled;
-                    if(res?.data?.message==="success"){
+                    if (res?.data?.message === "success") {
                         SuccessToast("Notifications Deleted successfully");
                     }
-                }catch(err) {
+                } catch (err) {
                     ErrorToast("Something went wrong!")
                 }
             }
         })
-    }),
+    })
 })
 
 
-export const {useGetUsersQuery, useGetMyProfileQuery, useGetNotificationQuery, useMarkAllReadMutation, useDeleteAllReadMutation} = userApi;
+
+export const {useGetUsersQuery, useGetNotificationQuery, useMarkAllReadMutation, useDeleteAllReadMutation} = userApi;
