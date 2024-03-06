@@ -5,7 +5,7 @@ import {io} from "socket.io-client";
 export const doctorApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getDoctors: builder.query({
-            query: () => `/admin/get-all-doctor`,
+            query: () => `/doctor/get-all-doctor`,
             keepUnusedDataFor: 600,
             providesTags: ["Doctors"],
             async onQueryStarted(arg, {queryFulfilled, dispatch}){
@@ -19,7 +19,7 @@ export const doctorApi = apiSlice.injectEndpoints({
             },
         }),
         getDoctorsRequest: builder.query({
-            query: () => `/admin/get-doctors-request`,
+            query: () => `/doctor/get-doctors-request`,
             keepUnusedDataFor: 600,
             providesTags: ["Requests"],
             async onQueryStarted(arg, {queryFulfilled, dispatch}){
@@ -34,7 +34,7 @@ export const doctorApi = apiSlice.injectEndpoints({
         }),
         approveDoctor: builder.mutation({
             query: (data) => ({
-                url: "/admin/approve-doctor",
+                url: "/doctor/approve-doctor",
                 method: "POST",
                 body: data
             }),
@@ -48,9 +48,34 @@ export const doctorApi = apiSlice.injectEndpoints({
                         socket.emit('send-notification', "send-notification")
                     }
                 }catch(err) {
-                    console.log(err)
-                    ErrorToast("Hello approve doctor")
-                    ErrorToast("Something Went Wrong!")
+                    const status = err?.error?.status;
+                    if(status === 409){
+                        ErrorToast("Failed,This user is already a doctor");
+                    }else{
+                        //ErrorToast("Something Went Wrong!")
+                    }
+                }
+            }
+        }),
+        removeDocRequest: builder.mutation({
+            query: (id) => ({
+                url: `/doctor/remove-doc-request/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Requests"],
+            async onQueryStarted(arg, {queryFulfilled}){
+                try{
+                    const res = await queryFulfilled;
+                    if(res?.data?.message === "success"){
+                        SuccessToast(" Success");
+                    }
+                }catch(err) {
+                    console.log(err);
+                    let status = err?.error?.status;
+                    if(status === 403){
+                        ErrorToast("Failld ! This category is associated with Product");
+                    }
+
                 }
             }
         }),
@@ -58,4 +83,4 @@ export const doctorApi = apiSlice.injectEndpoints({
 })
 
 
-export const {useApproveDoctorMutation, useGetDoctorsQuery, useGetDoctorsRequestQuery} = doctorApi;
+export const {useApproveDoctorMutation,useRemoveDocRequestMutation, useGetDoctorsQuery, useGetDoctorsRequestQuery} = doctorApi;

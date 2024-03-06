@@ -7,6 +7,19 @@
     padding: 0;
 }
 .active{
-    @apply bg-white p-2.5 text-black text-black
+    @apply bg-white p-2.5 text-black
+}
+
+.ant-btn{
+    display: none !important;
+}
+
+.ant-modal-close{
+    display: none !important;
+}
+
+.ant-modal-title{
+    font-size: 18px !important;
+    font-weight: bold !important;
 }
 

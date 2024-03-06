@@ -1,12 +1,14 @@
 import {Table} from "antd";
 import {
     useApproveDoctorMutation,
-    useGetDoctorsQuery,
     useGetDoctorsRequestQuery
 } from "../redux/features/doctor/doctorApi.js";
-import {useLoginMutation} from "../redux/features/auth/authApi.js";
-import {SuccessToast} from "../helper/ValidationHelper.js";
 import ListLoading from "./Loader/ListLoading.jsx";
+import {AiFillDelete} from "react-icons/ai";
+import {useDispatch} from "react-redux";
+import {SetDocReqRemoveModalOpen} from "../redux/features/modal/modalSlice.js";
+import RemoveDocRequestModal from "./modal/RemoveDocRequestModal.jsx";
+import {SetDoctorId} from "../redux/features/doctor/doctorSlice.js";
 
 const columns = [
     {
@@ -29,17 +31,22 @@ const columns = [
         title: "Action",
         dataIndex: "action",
     },
+    {
+        title: "Remove",
+        dataIndex: "remove",
+    },
 ];
 
 const DoctorsRequest = () => {
+    const dispatch = useDispatch();
     const {data, isLoading, isError, error} = useGetDoctorsRequestQuery();
     const doctors = data?.data || [];
     const [approveDoctor, {isLoading:Loading, isSuccess}] = useApproveDoctorMutation();
 
-    const handleClick = (id) => {
+    const handleClick = (doctorID, userID) => {
         approveDoctor({
-            doctorId:id,
-            status:"approved"
+            doctorId:doctorID,
+            userId: userID
         })
     }
 
@@ -75,7 +82,9 @@ const DoctorsRequest = () => {
                             {doctors[i].status === "pending" ? (
                                 <button
                                     disabled={Loading}
-                                    onClick={()=>handleClick(doctors[i]._id)}
+                                    onClick={()=>{
+                                        handleClick(doctors[i]._id, doctors[i].userId)
+                                    }}
                                     className="px-4 py-2 rounded-md bg-green-500 text-white font-bold text-md hover:bg-green-600 focus:outline-none focus:shadow-outline-green active:bg-green-800">
                                     Approve
                                 </button>
@@ -86,6 +95,18 @@ const DoctorsRequest = () => {
                                 </button>
                             )}
                         </div>
+                    </>
+                ),
+                remove: (
+                    <>
+                        <button
+                            onClick={()=>{
+                                dispatch(SetDoctorId(doctors[i]?._id))
+                                dispatch(SetDocReqRemoveModalOpen(true));
+                            }}
+                            className="bg-red-500 hover:bg-red-700 px-2 py-2 text-white font-bold text-md rounded-md">
+                            <AiFillDelete size={25}/>
+                        </button>
                     </>
                 ),
             });
@@ -112,6 +133,8 @@ const DoctorsRequest = () => {
                     )
                 }
             </div>
+
+            <RemoveDocRequestModal/>
         </>
     );
 };

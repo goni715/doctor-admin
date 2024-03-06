@@ -65,7 +65,7 @@ const MobileNav = () => {
                             <GiHamburgerMenu className="mobile-nav-icon text-white cursor-pointer" size={30} onClick={handleOpen}/>
                         )
                         }
-                        <span className="mobile-nav-title text-[#f29f67] font-bold capitalize text-xl ml-5">DOC APP</span>
+                        <span className="mobile-nav-title text-[#f29f67] font-bold capitalize text-xl ml-5">DOC Admin</span>
                     </div>
                     <div className="content-header flex items-center pr-2 gap-5">
                         <Badge onClick={()=>navigate("/notification")} count={notification?.length || 0}>

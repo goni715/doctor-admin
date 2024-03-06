@@ -36,7 +36,7 @@ const Header = () => {
 
     return (
         <>
-            <div className="p-5 hidden md:flex mb-5 bg-green-100 border h-[10vh] content-header  items-center justify-end pr-5 gap-5">
+            <div className="p-5 hidden md:flex mb-5 shadow-md border h-[10vh] content-header  items-center justify-end pr-5 gap-5">
                 <Badge key={Date.now()} onClick={()=>navigate("/notification")} count={notification?.length || 0}>
                     <FaBell className="cursor-pointer" size={20} />
                 </Badge>
